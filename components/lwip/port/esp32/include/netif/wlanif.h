@@ -30,6 +30,10 @@ err_t wlanif_init_sta(struct netif *netif);
 void wlanif_input(void *netif, void *buffer, size_t len, void* eb);
 err_t wlanif_init(struct netif *netif);
 
+// Statistics
+int wlanif_bytes_in(void);
+int wlanif_bytes_out(void);
+
 wifi_interface_t wifi_get_interface(void *dev);
 
 void netif_reg_addr_change_cb(void* cb);
