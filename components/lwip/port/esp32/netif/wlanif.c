@@ -54,6 +54,17 @@
 #include "esp_netif_net_stack.h"
 #include "esp_compiler.h"
 
+static int _bytes_in = 0;
+static int _bytes_out = 0;
+
+int wlanif_bytes_in(void) {
+    return _bytes_in;
+}
+
+int wlanif_bytes_out(void) {
+    return _bytes_out;
+}
+
 #if !ESP_L2_TO_L3_COPY
 /**
  * @brief Free resources allocated in L2 layer
@@ -133,6 +144,8 @@ low_level_output(struct netif *netif, struct pbuf *p)
   struct pbuf *q = p;
   esp_err_t ret;
 
+  _bytes_out += q->len;
+
   if(q->next == NULL) {
     ret = esp_netif_transmit_wrap(esp_netif, q->payload, q->len, q);
 
@@ -183,6 +196,8 @@ wlanif_input(void *h, void *buffer, size_t len, void* eb)
     }
     return;
   }
+
+  _bytes_in += len;
 
 #if (ESP_L2_TO_L3_COPY == 1)
   p = pbuf_alloc(PBUF_RAW, len, PBUF_RAM);
