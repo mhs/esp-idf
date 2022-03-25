@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 #
-# SPDX-FileCopyrightText: 2019-2021 Espressif Systems (Shanghai) CO LTD
+# SPDX-FileCopyrightText: 2019-2022 Espressif Systems (Shanghai) CO LTD
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -43,6 +43,7 @@ import ssl
 import subprocess
 import sys
 import tarfile
+import time
 from collections import OrderedDict, namedtuple
 from ssl import SSLContext  # noqa: F401
 from tarfile import TarFile  # noqa: F401
@@ -372,19 +373,19 @@ def urlretrieve_ctx(url, filename, reporthook=None, data=None, context=None):
 # https://github.com/espressif/esp-idf/issues/4063#issuecomment-531490140
 # https://stackoverflow.com/a/43046729
 def rename_with_retry(path_from, path_to):  # type: (str, str) -> None
-    if sys.platform.startswith('win'):
-        retry_count = 100
-    else:
-        retry_count = 1
-
+    retry_count = 20 if sys.platform.startswith('win') else 1
     for retry in range(retry_count):
         try:
             os.rename(path_from, path_to)
             return
-        except (OSError, WindowsError):       # WindowsError until Python 3.3, then OSError
+        except OSError:
+            msg = f'Rename {path_from} to {path_to} failed'
             if retry == retry_count - 1:
+                fatal(msg + '. Antivirus software might be causing this. Disabling it temporarily could solve the issue.')
                 raise
-            warn('Rename {} to {} failed, retrying...'.format(path_from, path_to))
+            warn(msg + ', retrying...')
+            # Sleep before the next try in order to pass the antivirus check on Windows
+            time.sleep(0.5)
 
 
 def strip_container_dirs(path, levels):  # type: (str, int) -> None
@@ -1503,8 +1504,8 @@ def action_install_python_env(args):  # type: ignore
         try:
             subprocess.check_call([virtualenv_python, '-m', 'pip', '--version'], stdout=sys.stdout, stderr=sys.stderr)
         except subprocess.CalledProcessError:
-            warn('PIP is not available in the virtual environment.')
-            # Reinstallation of the virtual environment could help if PIP was installed for the main Python
+            warn('pip is not available in the existing virtual environment, new virtual environment will be created.')
+            # Reinstallation of the virtual environment could help if pip was installed for the main Python
             reinstall = True
 
     if reinstall and os.path.exists(idf_python_env_path):
@@ -1512,16 +1513,45 @@ def action_install_python_env(args):  # type: ignore
         shutil.rmtree(idf_python_env_path)
 
     if not os.path.exists(virtualenv_python):
-        info('Creating a new Python environment in {}'.format(idf_python_env_path))
+        # Before creating the virtual environment, check if pip is installed.
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', '--version'])
+        except subprocess.CalledProcessError:
+            fatal('Python interpreter at {} doesn\'t have pip installed. '
+                  'Please check the Getting Started Guides for the steps to install prerequisites for your OS.'.format(sys.executable))
+            raise SystemExit(1)
 
+        virtualenv_installed_via_pip = False
         try:
             import virtualenv  # noqa: F401
         except ImportError:
             info('Installing virtualenv')
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', 'virtualenv'],
                                   stdout=sys.stdout, stderr=sys.stderr)
+            virtualenv_installed_via_pip = True
+            # since we just installed virtualenv via pip, we know that version is recent enough
+            # so the version check below is not necessary.
 
-        subprocess.check_call([sys.executable, '-m', 'virtualenv', '--seeder', 'pip', idf_python_env_path],
+        with_seeder_option = True
+        if not virtualenv_installed_via_pip:
+            # virtualenv is already present in the system and may have been installed via OS package manager
+            # check the version to determine if we should add --seeder option
+            try:
+                major_ver = int(virtualenv.__version__.split('.')[0])
+                if major_ver < 20:
+                    warn('Virtualenv version {} is old, please consider upgrading it'.format(virtualenv.__version__))
+                    with_seeder_option = False
+            except (ValueError, NameError, AttributeError, IndexError):
+                pass
+
+        info('Creating a new Python environment in {}'.format(idf_python_env_path))
+        virtualenv_options = ['--python', sys.executable]
+        if with_seeder_option:
+            virtualenv_options += ['--seeder', 'pip']
+
+        subprocess.check_call([sys.executable, '-m', 'virtualenv',
+                               *virtualenv_options,
+                               idf_python_env_path],
                               stdout=sys.stdout, stderr=sys.stderr)
     env_copy = os.environ.copy()
     if env_copy.get('PIP_USER')  == 'yes':
