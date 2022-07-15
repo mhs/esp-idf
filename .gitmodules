@@ -37,7 +37,7 @@
 
 [submodule "components/mbedtls/mbedtls"]
 	path = components/mbedtls/mbedtls
-	url = ../../espressif/mbedtls.git
+	url = git@github.com:dhornacek-spindance/mbedtls.git
 
 [submodule "components/asio/asio"]
 	path = components/asio/asio
