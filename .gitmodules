@@ -108,4 +108,4 @@
 	url = ../../espressif/esp-ieee802154-lib.git
 [submodule "components/mbedtls/mbedtls"]
 	path = components/mbedtls/mbedtls
-	url = git@github.com:dhornacek-spindance/mbedtls.git
+	url = https://github.com/spindance/mbedtls.git
