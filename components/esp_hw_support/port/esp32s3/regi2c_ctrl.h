@@ -20,6 +20,7 @@ extern "C" {
 #define I2C_MST_ANA_CONF0_REG  0x6000E040
 #define I2C_MST_BBPLL_STOP_FORCE_HIGH  (BIT(2))
 #define I2C_MST_BBPLL_STOP_FORCE_LOW  (BIT(3))
+#define I2C_MST_BBPLL_CAL_DONE  (BIT(24))
 
 #define ANA_CONFIG_REG  0x6000E044
 #define ANA_CONFIG_S    (8)
@@ -62,6 +63,10 @@ uint8_t regi2c_ctrl_read_reg(uint8_t block, uint8_t host_id, uint8_t reg_add);
 uint8_t regi2c_ctrl_read_reg_mask(uint8_t block, uint8_t host_id, uint8_t reg_add, uint8_t msb, uint8_t lsb);
 void regi2c_ctrl_write_reg(uint8_t block, uint8_t host_id, uint8_t reg_add, uint8_t data);
 void regi2c_ctrl_write_reg_mask(uint8_t block, uint8_t host_id, uint8_t reg_add, uint8_t msb, uint8_t lsb, uint8_t data);
+
+/* enter the critical section that protects internal registers. Don't use it in SDK. Use the functions above. */
+void regi2c_enter_critical(void);
+void regi2c_exit_critical(void);
 
 #endif // BOOTLOADER_BUILD
 
