@@ -1,0 +1,153 @@
+# SpinDance ESP IDF v4.4.2 Changes
+The following is an analysis of the changes to [ESP IDF](https://github.com/espressif/esp-idf) `v4.4.2` in this [SpinDance fork](https://github.com/spindance/esp-idf) on branch `spindance_changes_v4.4.2`. The goal is to categorize the changes into features and describe their purpose and usage in the [SpinDance Embedded Starter Kit](https://github.com/spindance/spindance-embedded-reuse/).
+
+A handy way to view the diff is via this [Github pull request link](https://github.com/espressif/esp-idf/compare/v4.4.2...spindance:esp-idf:spindance_changes_v4.4.2).
+
+The original ESP repo and this SpinDance fork can be clone and viewed separately via:
+```
+git clone git@github.com:espressif/esp-idf.git esp-idf
+cd esp-idf
+git co v4.4.2
+
+cd ..
+git clone git@github.com:spindance/esp-idf.git spindance-esp-idf
+cd spindance-esp-idf
+git co spindance_changes_v4.4.2
+```
+
+## Changed Files
+```
+components/lwip/port/esp32/include/netif/wlanif.h
+components/lwip/port/esp32/netif/wlanif.c
+components/protocomm/include/security/protocomm_security.h
+components/protocomm/include/transports/protocomm_ble.h
+components/protocomm/src/common/protocomm.c
+components/protocomm/src/security/security1.c
+components/protocomm/src/transports/protocomm_nimble.c
+components/wifi_provisioning/include/wifi_provisioning/manager.h
+components/wifi_provisioning/include/wifi_provisioning/wifi_config.h
+components/wifi_provisioning/include/wifi_provisioning/wifi_scan.h
+components/wifi_provisioning/proto/wifi_config.proto
+components/wifi_provisioning/proto/wifi_scan.proto
+components/wifi_provisioning/proto-c/wifi_config.pb-c.c
+components/wifi_provisioning/proto-c/wifi_config.pb-c.h
+components/wifi_provisioning/proto-c/wifi_scan.pb-c.c
+components/wifi_provisioning/proto-c/wifi_scan.pb-c.h
+components/wifi_provisioning/python/wifi_config_pb2.py
+components/wifi_provisioning/python/wifi_constants_pb2.py
+components/wifi_provisioning/python/wifi_scan_pb2.py
+components/wifi_provisioning/src/manager.c
+components/wifi_provisioning/src/wifi_config.c
+components/wifi_provisioning/src/wifi_provisioning_priv.h
+components/wifi_provisioning/src/wifi_scan.c
+tools/idf_tools.py
+```
+
+## Features
+The following is a list of the SpinDance Embedded Starter Kit features that the changes in this fork support:
+- **Network (NW) Metrics Reporting**
+  - Added support for simple bytes in/bytes out tracking and reporting in ESP's LWIP implementation
+  - Embedded Starter Kit access these values via it's PAL and includes then in metrics reported to MQTT
+  - Impacted ESP IDF files:
+    - wlanif.h
+    - wlanif.h
+  - Commits:
+    - [lwip/port/esp32: add metrics for wlan bytes in/out](https://github.com/spindance/esp-idf/commit/ef9b870d0dad29b4993815c323c57202f5c1700b)
+- **Protocomm BLE Connectivity Reporting**
+  - Added reporting of BLE peer connectivity state (connected, connected securely, not connected)
+  - Embedded Starter Kit reports these states to analagous pubsub topic IDs in the WIFI_TOPIC_NS pubsub namespace
+  - Note: We'd likely want to implement this for `Security2` if/when we migrate to ESP IDF v5. UV Angel used this to display LEDs of different colors depending upon the state.
+  - Impacted ESP IDF files:
+    - protocomm_security.h
+    - protocomm_ble.h
+    - protocomm.c
+    - security1.c
+    - protocomm_nimble.c
+  - Commits
+    - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+- **BLE Advertisement Provisioning State**
+  - Added ability to directly modify the manufacturer specific data in the BLE advetisement.
+  - Embedded Starter Kit uses this to include the WiFi provisioning state in the advertisement
+  - Note: It may be possible to modify the advertisement without this change.
+  - Impacted ESP IDF files:
+    - protocomm_ble.h
+    - protocomm_nimble.c
+  - Commits
+    - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+- **JWT Authorization for Protocomm WiFi Provisioning**
+  - Added an auth token property to the Protocomm protobuff messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
+  - Embedded Starter Kit registers an authorization handler that validates the token as a JWT. This feature is disabled in the WiFi configuration in `devkit`.
+  - Note: The was added for UV Angel to validate device claiming. Gentex is also using a JWT during provisioning, but transfer of it over BLE occurs outside Protocomm.
+  - Impacted ESP IDF files:
+    - Protobuff definition files:
+      - wifi_config.proto
+      - wifi_scan.proto
+      - wifi_config.pb-c.h
+      - wifi_config.pb-c.c
+      - wifi_scan.pb-c.c
+      - wifi_scan.pb-c.h
+      - wifi_config_pb2.py
+      - wifi_constants_pb2.py
+      - wifi_scan_pb2.py
+    - manager.h
+    - manager.c
+    - wifi_config.h
+    - wifi_config.c
+    - wifi_scan.h
+    - wifi_scan.c
+  - Commits
+    - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+- **WPA2 Enterprise NW Support**
+  - Existing internal IDF helper functions that provide information about scanned WiFi access points were made public by moving there declarations to a public IDF header file.
+  - Embedded Starter Kit uses these functions to determine if the access point attempting to be configured is a WPA2 enterprise NW, and then enables or disables support for WPA2 enterprise.
+  - Note: It's possible that a newer version of ESP IDF may sufficiently support WPA2 enterprise. _Also, it's possible that WPA2 enterprise NW support inside the Starter Kit's `wifi` component is not tested or fully functional. This feature was added for UV Angel just prior to work being putting on hold for that project._
+  - Impacted ESP IDF files:
+    - manager.h
+    - wifi_provisioning_priv.h
+  - Commits
+    - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+- **WiFi Provisioning Sequence Changes**
+  - `WIFI_PROV_SCAN_STARTED` was added to the `wifi_prov_cb_event_t` enum and is reported once access point scan is started.
+  - Code was removed in manager.c `wifi_prov_mgr_start_provisioning()` to remove steps the setup when WiFi provisioning is started.
+  - Embedded Starter kit listens for `WIFI_PROV_SCAN_STARTED` event to coordinate WiFi provisioning setup and state
+    - _Todo: Explain why code was commented and responsibility was transferred into wifi.c or whatever_
+  - Impacted ESP IDF files:
+    - manager.h
+    - manager.c
+  - Commits
+    - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+- **Python Version Change**
+  - idf_tools.py was modified to use `python3` instead of the Mac default (`python2`)
+  - Impacted ESP IDF files:
+    - idf_tools.py
+  - Commits
+    - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+    - Also see UV Angel PR [Specify idf_tools.py Uses Python3](https://github.com/UVAngel/esp-idf/pull/8)
+
+## Feature / File Association
+| File                                                                 | SK Feature(s) |
+|:-------------------------------------------------------------------- | -------------- |
+|components/lwip/port/esp32/include/netif/wlanif.h                     | NW Metrics Reporting |
+|components/lwip/port/esp32/netif/wlanif.c                             | NW Metrics Reporting |
+|components/protocomm/include/security/protocomm_security.h            | Protocomm BLE Connectivity Reporting |
+|components/protocomm/include/transports/protocomm_ble.h               | Protocomm BLE Connectivity Reporting, BLE Advertisement Provisioning State |
+|components/protocomm/src/common/protocomm.c                           | Protocomm BLE Connectivity Reporting |
+|components/protocomm/src/security/security1.c                         | Protocomm BLE Connectivity Reporting |
+|components/protocomm/src/transports/protocomm_nimble.c                | Protocomm BLE Connectivity Reporting, BLE Advertisement Provisioning State |
+|components/wifi_provisioning/include/wifi_provisioning/manager.h      | WiFi Provisioning Sequence Changes, JWT Authorization for Protocomm WiFi provisioning, WPA2 Enterprise NW Support |
+|components/wifi_provisioning/include/wifi_provisioning/wifi_config.h  | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/include/wifi_provisioning/wifi_scan.h    | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/proto/wifi_config.proto                  | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/proto/wifi_scan.proto                    | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/proto-c/wifi_config.pb-c.c               | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/proto-c/wifi_config.pb-c.h               | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/proto-c/wifi_scan.pb-c.c                 | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/proto-c/wifi_scan.pb-c.h                 | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/python/wifi_config_pb2.py                | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/python/wifi_constants_pb2.py             | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/python/wifi_scan_pb2.py                  | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/src/manager.c                            | JWT Authorization for Protocomm WiFi Provisioning, WiFi Provisioning Sequence Changes |
+|components/wifi_provisioning/src/wifi_config.c                        | JWT Authorization for Protocomm WiFi Provisioning |
+|components/wifi_provisioning/src/wifi_provisioning_priv.h             | WPA2 Enterprise NW Support |
+|components/wifi_provisioning/src/wifi_scan.c                          | JWT Authorization for Protocomm WiFi Provisioning |
+|tools/idf_tools.py                                                    | Python Version Change |
