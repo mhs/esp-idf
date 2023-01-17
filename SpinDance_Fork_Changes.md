@@ -1,18 +1,18 @@
 # SpinDance ESP IDF v4.4.2 Changes
-The following is an analysis of the changes to [ESP IDF](https://github.com/espressif/esp-idf) `v4.4.2` in this [SpinDance fork](https://github.com/spindance/esp-idf) on branch `spindance_changes_v4.4.2`. The goal is to categorize the changes into features and describe their purpose and usage in the [SpinDance Embedded Starter Kit](https://github.com/spindance/spindance-embedded-reuse/).
+The following is an analysis of the changes to [ESP IDF](https://github.com/espressif/esp-idf) `v4.4.2` in this [SpinDance fork](https://github.com/spindance/esp-idf) on branch `spindance_changes_v4.4.2`. The purpose is to categorize the changes into features and describe their purpose and usage in the [SpinDance Embedded Starter Kit](https://github.com/spindance/spindance-embedded-reuse/).
 
 A handy way to view the diff is via this [Github pull request link](https://github.com/espressif/esp-idf/compare/v4.4.2...spindance:esp-idf:spindance_changes_v4.4.2).
 
-The original ESP repo and this SpinDance fork can be clone and viewed separately via:
+The original ESP repo and this SpinDance fork can be cloned and viewed separately via:
 ```
 git clone git@github.com:espressif/esp-idf.git esp-idf
 cd esp-idf
-git co v4.4.2
+git checkout v4.4.2
 
 cd ..
 git clone git@github.com:spindance/esp-idf.git spindance-esp-idf
 cd spindance-esp-idf
-git co spindance_changes_v4.4.2
+git checkout spindance_changes_v4.4.2
 ```
 
 ## Changed Files
@@ -47,7 +47,7 @@ tools/idf_tools.py
 The following is a list of the SpinDance Embedded Starter Kit features that the changes in this fork support:
 - **Network (NW) Metrics Reporting**
   - Added support for simple bytes in/bytes out tracking and reporting in ESP's LWIP implementation
-  - Embedded Starter Kit access these values via it's PAL and includes then in metrics reported to MQTT
+  - Embedded Starter Kit accesses these values via it's PAL and includes them in metrics reported to MQTT
   - Impacted ESP IDF files:
     - wlanif.h
     - wlanif.h
@@ -55,7 +55,7 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
     - [lwip/port/esp32: add metrics for wlan bytes in/out](https://github.com/spindance/esp-idf/commit/ef9b870d0dad29b4993815c323c57202f5c1700b)
 - **Protocomm BLE Connectivity Reporting**
   - Added reporting of BLE peer connectivity state (connected, connected securely, not connected)
-  - Embedded Starter Kit reports these states to analagous pubsub topic IDs in the WIFI_TOPIC_NS pubsub namespace
+  - Embedded Starter Kit reports these states to analagous pubsub topic IDs in the pubsub namespace `WIFI_TOPIC_NS`
   - Note: We'd likely want to implement this for `Security2` if/when we migrate to ESP IDF v5. UV Angel used this to display LEDs of different colors depending upon the state.
   - Impacted ESP IDF files:
     - protocomm_security.h
@@ -65,10 +65,10 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
     - protocomm_nimble.c
   - Commits
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
-- **BLE Advertisement Provisioning State**
-  - Added ability to directly modify the manufacturer specific data in the BLE advetisement.
+- **Provisioning State in BLE Advertisement Data (AD)**
+  - Added ability to directly modify the manufacturer specific data in the BLE advertisement.
   - Embedded Starter Kit uses this to include the WiFi provisioning state in the advertisement
-  - Note: It may be possible to modify the advertisement without this change.
+  - Note: It maybe possible that the ESP IDF provides a different way to modify the advertisement.
   - Impacted ESP IDF files:
     - protocomm_ble.h
     - protocomm_nimble.c
@@ -98,7 +98,7 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
   - Commits
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
 - **WPA2 Enterprise NW Support**
-  - Existing internal IDF helper functions that provide information about scanned WiFi access points were made public by moving there declarations to a public IDF header file.
+  - Existing internal IDF helper functions that provide information about scanned WiFi access points were made public by moving their declarations to a public IDF header file.
   - Embedded Starter Kit uses these functions to determine if the access point attempting to be configured is a WPA2 enterprise NW, and then enables or disables support for WPA2 enterprise.
   - Note: It's possible that a newer version of ESP IDF may sufficiently support WPA2 enterprise. _Also, it's possible that WPA2 enterprise NW support inside the Starter Kit's `wifi` component is not tested or fully functional. This feature was added for UV Angel just prior to work being putting on hold for that project._
   - Impacted ESP IDF files:
@@ -107,7 +107,7 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
   - Commits
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
 - **WiFi Provisioning Sequence Changes**
-  - `WIFI_PROV_SCAN_STARTED` was added to the `wifi_prov_cb_event_t` enum and is reported once access point scan is started.
+  - `WIFI_PROV_SCAN_STARTED` was added to the `wifi_prov_cb_event_t` enum and is reported once a WiFi access point scan is started.
   - Code was removed in manager.c `wifi_prov_mgr_start_provisioning()` to remove steps the setup when WiFi provisioning is started.
   - Embedded Starter kit listens for `WIFI_PROV_SCAN_STARTED` event to coordinate WiFi provisioning setup and state
     - _Todo: Explain why code was commented and responsibility was transferred into wifi.c or whatever_
@@ -130,10 +130,10 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
 |components/lwip/port/esp32/include/netif/wlanif.h                     | NW Metrics Reporting |
 |components/lwip/port/esp32/netif/wlanif.c                             | NW Metrics Reporting |
 |components/protocomm/include/security/protocomm_security.h            | Protocomm BLE Connectivity Reporting |
-|components/protocomm/include/transports/protocomm_ble.h               | Protocomm BLE Connectivity Reporting, BLE Advertisement Provisioning State |
+|components/protocomm/include/transports/protocomm_ble.h               | Protocomm BLE Connectivity Reporting, Provisioning State in BLE AD |
 |components/protocomm/src/common/protocomm.c                           | Protocomm BLE Connectivity Reporting |
 |components/protocomm/src/security/security1.c                         | Protocomm BLE Connectivity Reporting |
-|components/protocomm/src/transports/protocomm_nimble.c                | Protocomm BLE Connectivity Reporting, BLE Advertisement Provisioning State |
+|components/protocomm/src/transports/protocomm_nimble.c                | Protocomm BLE Connectivity Reporting, Provisioning State in BLE AD |
 |components/wifi_provisioning/include/wifi_provisioning/manager.h      | WiFi Provisioning Sequence Changes, JWT Authorization for Protocomm WiFi provisioning, WPA2 Enterprise NW Support |
 |components/wifi_provisioning/include/wifi_provisioning/wifi_config.h  | JWT Authorization for Protocomm WiFi Provisioning |
 |components/wifi_provisioning/include/wifi_provisioning/wifi_scan.h    | JWT Authorization for Protocomm WiFi Provisioning |
