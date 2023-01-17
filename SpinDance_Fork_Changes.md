@@ -74,6 +74,7 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
     - protocomm_nimble.c
   - Commits
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
+    - UV Angel [manufacturer-data-during-provisioning](https://github.com/UVAngel/esp-idf/commits/uvangel/manufacturer-data-during-provisioning)
 - **JWT Authorization for Protocomm WiFi Provisioning**
   - Added an auth token property to the Protocomm protobuff messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
   - Embedded Starter Kit registers an authorization handler that validates the token as a JWT. This feature is disabled in the WiFi configuration in `devkit`.
@@ -122,7 +123,9 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
     - idf_tools.py
   - Commits
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
-    - Also see UV Angel PR [Specify idf_tools.py Uses Python3](https://github.com/UVAngel/esp-idf/pull/8)
+    - Also see UV Angel:
+      - [Specify idf_tools.py Uses Python3](https://github.com/UVAngel/esp-idf/pull/8)
+      - [Don't automatically start wifi](https://github.com/UVAngel/esp-idf/commit/2068220d62c1c5834e9b7915f21985be3f81f68e)
 
 ## Feature / File Association
 | File                                                                 | SK Feature(s) |
