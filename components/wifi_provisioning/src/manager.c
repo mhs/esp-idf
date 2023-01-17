@@ -1427,17 +1427,15 @@ esp_err_t wifi_prov_mgr_start_provisioning(wifi_prov_security_t security, const 
 
     /* Start Wi-Fi in Station Mode.
      * This is necessary for scanning to work */
-    // esp_err_t err = esp_wifi_set_mode(WIFI_MODE_STA);
-    // if (err != ESP_OK) {
+    // ret = esp_wifi_set_mode(WIFI_MODE_STA);
+    // if (ret != ESP_OK) {
     //     ESP_LOGE(TAG, "Failed to set Wi-Fi mode to STA");
-    //     RELEASE_LOCK(prov_ctx_lock);
-    //     return err;
+    //     goto err;
     // }
-    // err = esp_wifi_start();
-    // if (err != ESP_OK) {
+    // ret = esp_wifi_start();
+    // if (ret != ESP_OK) {
     //     ESP_LOGE(TAG, "Failed to start Wi-Fi");
-    //     RELEASE_LOCK(prov_ctx_lock);
-    //     return err;
+    //     goto err;
     // }
 
     /* Change Wi-Fi storage to RAM temporarily and erase any old
@@ -1451,20 +1449,18 @@ esp_err_t wifi_prov_mgr_start_provisioning(wifi_prov_security_t security, const 
     // err = esp_wifi_set_storage(WIFI_STORAGE_RAM);
     // if (err != ESP_OK) {
     //     ESP_LOGE(TAG, "Failed to set Wi-Fi storage to RAM");
-    //     RELEASE_LOCK(prov_ctx_lock);
-    //     return err;
+    //     goto err;
     // }
+
     // esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg_empty);
-    // if (err != ESP_OK) {
+    // if (ret != ESP_OK) {
     //     ESP_LOGE(TAG, "Failed to set empty Wi-Fi credentials");
-    //     RELEASE_LOCK(prov_ctx_lock);
-    //     return err;
+    //     goto err;
     // }
-    // err = esp_wifi_disconnect();
-    // if (err != ESP_OK) {
+    // ret = esp_wifi_disconnect();
+    // if (ret != ESP_OK) {
     //     ESP_LOGE(TAG, "Failed to disconnect");
-    //     RELEASE_LOCK(prov_ctx_lock);
-    //     return err;
+    //     goto err;
     // }
 
     /* Initialize app data */
