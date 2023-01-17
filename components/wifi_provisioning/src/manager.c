@@ -1432,44 +1432,53 @@ esp_err_t wifi_prov_mgr_start_provisioning(wifi_prov_security_t security, const 
     prov_ctx->prov_state = WIFI_PROV_STATE_STARTING;
 
     #if INCLUDE_SPINDANCE_PROVISIONING_SETUP_CHANGES
-    wifi_config_t wifi_cfg_old = {0};
-    esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_cfg_old);
+        wifi_config_t wifi_cfg_old = {0};
+        esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg_old);
     #else
-    /* Start Wi-Fi in Station Mode.
-     * This is necessary for scanning to work */
-    ret = esp_wifi_set_mode(WIFI_MODE_STA);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set Wi-Fi mode to STA");
-        goto err;
-    }
-    ret = esp_wifi_start();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to start Wi-Fi");
-        goto err;
-    }
+        /* Start Wi-Fi in Station Mode.
+        * This is necessary for scanning to work */
+        ret = esp_wifi_set_mode(WIFI_MODE_STA);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to set Wi-Fi mode to STA");
+            goto err;
+        }
+        ret = esp_wifi_start();
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to start Wi-Fi");
+            goto err;
+        }
 
-    /* Change Wi-Fi storage to RAM temporarily and erase any old
-     * credentials in RAM(i.e. without erasing the copy on NVS). Also
-     * call disconnect to make sure device doesn't remain connected
-     * to the AP whose credentials were present earlier */
-    wifi_config_t wifi_cfg_empty, wifi_cfg_old;
-    memset(&wifi_cfg_empty, 0, sizeof(wifi_config_t));
-    ret = esp_wifi_set_storage(WIFI_STORAGE_RAM);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set Wi-Fi storage to RAM");
-        goto err;
-    }
+        /* Change Wi-Fi storage to RAM temporarily and erase any old
+        * credentials in RAM(i.e. without erasing the copy on NVS). Also
+        * call disconnect to make sure device doesn't remain connected
+        * to the AP whose credentials were present earlier */
+        wifi_config_t wifi_cfg_empty, wifi_cfg_old;
+        memset(&wifi_cfg_empty, 0, sizeof(wifi_config_t));
+        esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg_old);
+        ret = esp_wifi_set_storage(WIFI_STORAGE_RAM);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to set Wi-Fi storage to RAM");
+            goto err;
+        }
 
-    esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg_empty);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set empty Wi-Fi credentials");
-        goto err;
-    }
-    ret = esp_wifi_disconnect();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to disconnect");
-        goto err;
-    }
+        /* WiFi storage needs to be restored before exiting this API */
+        restore_wifi_flag |= WIFI_PROV_STORAGE_BIT;
+        /* Erase Wi-Fi credentials in RAM, when call disconnect and user code
+        * receive WIFI_EVENT_STA_DISCONNECTED and maybe call esp_wifi_connect, at
+        * this time Wi-Fi will have no configuration to connect */
+        ret = esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg_empty);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to set empty Wi-Fi credentials");
+            goto err;
+        }
+        /* WiFi settings needs to be restored if provisioning error before exiting this API */
+        restore_wifi_flag |= WIFI_PROV_SETTING_BIT;
+
+        ret = esp_wifi_disconnect();
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to disconnect");
+            goto err;
+        }
     #endif
 
     /* Initialize app data */
