@@ -24,10 +24,7 @@
 
 #include "wifi_provisioning_priv.h"
 
-/**
- * @brief SpinDance removed code in the WiFi provisioning setup in
- * wifi_prov_mgr_start_provisioning(). Those changes are enabled and disabled here.
- */
+/** @brief Enables the SpinDance changes in wifi_prov_mgr_start_provisioning(). */
 #define INCLUDE_SPINDANCE_PROVISIONING_SETUP_CHANGES 1
 
 #define WIFI_PROV_MGR_VERSION      "v1.1"
