@@ -24,7 +24,14 @@
 
 #include "wifi_provisioning_priv.h"
 
-/** @brief Enables the SpinDance changes in wifi_prov_mgr_start_provisioning(). */
+/**
+ * @brief Enables the SpinDance changes in wifi_prov_mgr_start_provisioning().
+ *
+ * The reasoning behind the SpinDance changes has been lost. Note that the code that remains
+ * (getting the current WiFi configuration) is effectively useless, because the restoring of
+ * the old WiFi config is performed inside the err: label but only if the WIFI_PROV_SETTING_BIT
+ * is set, and the code that sets the bit is commented out.
+ */
 #define INCLUDE_SPINDANCE_PROVISIONING_SETUP_CHANGES 1
 
 #define WIFI_PROV_MGR_VERSION      "v1.1"
