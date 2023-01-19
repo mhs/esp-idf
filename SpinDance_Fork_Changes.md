@@ -76,11 +76,11 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
     - UV Angel [manufacturer-data-during-provisioning](https://github.com/UVAngel/esp-idf/commits/uvangel/manufacturer-data-during-provisioning)
 - **JWT Authorization for Protocomm WiFi Provisioning**
-  - Added an auth token property to the Protocomm protobuff messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
+  - Added an auth token property to the Protocomm protobuf messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
   - Embedded Starter Kit registers an authorization handler that validates the token as a JWT. This feature is disabled in the WiFi configuration in `devkit`.
   - Note: The was added for UV Angel to validate device claiming. Gentex is also using a JWT during provisioning, but transfer of it over BLE occurs outside Protocomm.
   - Impacted ESP IDF files:
-    - Protobuff definition files:
+    - Protobuf definition files:
       - wifi_config.proto
       - wifi_scan.proto
       - wifi_config.pb-c.h
@@ -108,10 +108,19 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
   - Commits
     - [spindance_changes for wifi_provisioning](https://github.com/spindance/esp-idf/commit/56c743a69cf9dce0bf4ce4eab4048a2c1088fdee)
 - **WiFi Provisioning Sequence Changes**
-  - `WIFI_PROV_SCAN_STARTED` was added to the `wifi_prov_cb_event_t` enum and is reported once a WiFi access point scan is started.
-  - Code was removed in manager.c `wifi_prov_mgr_start_provisioning()` to remove steps the setup when WiFi provisioning is started.
-  - Embedded Starter kit listens for `WIFI_PROV_SCAN_STARTED` event to coordinate WiFi provisioning setup and state
-    - _Todo: Explain why code was commented and responsibility was transferred into wifi.c or whatever_
+  - `WIFI_PROV_SCAN_STARTED` was added to the `wifi_prov_cb_event_t` enum and is reported via the `app_event_handler` in manager.c once a WiFi access point scan is started.
+    - Embedded Starter kit wifi.c listens for `WIFI_PROV_SCAN_STARTED`, at which point it sets a boolean flag `_provisioning_in_progress` indicating WiFi is being used to scan for and configure an access points. It also disconnects wifi via `esp_wifi_disconnect()`, which happens to be one of the calls that is removed in manager.c `wifi_prov_mgr_start_provisioning()`, as discussed below.
+  - Code was removed in manager.c `wifi_prov_mgr_start_provisioning()` to remove steps from the setup when WiFi provisioning is started.
+    - Removed "Start Wi-Fi in Station Mode": 
+      - Removed calls: `esp_wifi_set_mode(WIFI_MODE_STA); esp_wifi_start();`
+      - Embedded Starter Kit calls these two functions once, at startup, in `wifi_init()`. It's not clear if calling these again in `wifi_prov_mgr_start_provisioning()` is therefore necessary (apparently it is not), _nor is it clear if calling them again by re-including the removed calls would be problematic_.
+    - Removed "Change Wi-Fi storage to RAM temporarily and erase any old credentials in RAM"
+      - Removed calls: `esp_wifi_set_storage(WIFI_STORAGE_RAM); esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg_empty);`
+      - Based upon the comments, this appears to be a sort of back door means of preventing the application code from attempting to auto-reconnect when it receives `WIFI_EVENT_STA_DISCONNECTED` due to the call to `esp_wifi_disconnect()` discussed below. Presumably the auto-reconnect cannot occur or won't succeed due to there being no stored access point credentials.
+      - Embedded Starter Kit wifi.c appears to manage not attempting to reconnect during provisioning. It controls when it calls `esp_wifi_connect()` when it receives `WIFI_EVENT_STA_DISCONNECTED`, only calling it if `_provisioning_in_progress` is false and WiFi is not actively being disconnected from.
+    - Removed "Disconnect to make sure device doesn't remain connected to the AP whose credentials were present earlier"
+      - Removed call: `esp_wifi_disconnect();`
+      - Embedded Starter Kit calls this function when it receives the `WIFI_PROV_SCAN_STARTED` event, as discussed above.
   - Impacted ESP IDF files:
     - manager.h
     - manager.c
