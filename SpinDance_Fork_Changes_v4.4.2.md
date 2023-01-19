@@ -88,7 +88,7 @@ The features, their associated changes to ESP IDF and how the change is related 
 - **JWT Authorization for Protocomm WiFi Provisioning**
   - Added an auth token property to the Protocomm protobuf messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
   - Embedded Starter Kit registers an authorization handler that validates the token as a JWT. This feature is disabled in the WiFi configuration in `devkit`.
-  - Note: The was added for UV Angel to validate device claiming. Gentex Connected Smoke is also using a JWT during provisioning, but transfer of it over BLE occurs outside Protocomm.
+  - Note: The was added for UV Angel to validate device claiming. Gentex Connected Smoke is also using a JWT during provisioning, but transfer of the JWT is done via a custom BLE Protocomm endpoint.
   - Impacted ESP IDF files:
     - Protobuf definition files:
       - wifi_config.proto
