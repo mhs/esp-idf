@@ -43,7 +43,7 @@ components/wifi_provisioning/src/wifi_scan.c
 tools/idf_tools.py
 ```
 
-## Features
+## Feature List
 The following is a list of the SpinDance Embedded Starter Kit features that the changes in this fork support:
 - Network (NW) Metrics Reporting
 - Protocomm BLE Connectivity Reporting
@@ -51,8 +51,10 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
 - JWT Authorization for Protocomm WiFi Provisioning
 - WPA2 Enterprise NW Support
 - WiFi Provisioning Sequence Changes
+- Python Version Change
 
-The features, the associated changes to ESP IDF, and how the change is related to the Embedded Starter Ki are described in more detail below:
+## Feature Details
+The features, their associated changes to ESP IDF and how the change is related to the Embedded Starter Kit are described in more detail below:
 - **Network (NW) Metrics Reporting**
   - Added support for simple bytes in/bytes out tracking and reporting in ESP's LWIP implementation
   - Embedded Starter Kit accesses these values via it's PAL and includes them in metrics reported to MQTT
@@ -86,7 +88,7 @@ The features, the associated changes to ESP IDF, and how the change is related t
 - **JWT Authorization for Protocomm WiFi Provisioning**
   - Added an auth token property to the Protocomm protobuf messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
   - Embedded Starter Kit registers an authorization handler that validates the token as a JWT. This feature is disabled in the WiFi configuration in `devkit`.
-  - Note: The was added for UV Angel to validate device claiming. Gentex is also using a JWT during provisioning, but transfer of it over BLE occurs outside Protocomm.
+  - Note: The was added for UV Angel to validate device claiming. Gentex Connected Smoke is also using a JWT during provisioning, but transfer of it over BLE occurs outside Protocomm.
   - Impacted ESP IDF files:
     - Protobuf definition files:
       - wifi_config.proto
@@ -124,7 +126,7 @@ The features, the associated changes to ESP IDF, and how the change is related t
       - Embedded Starter Kit calls these two functions once, at startup, in `wifi_init()`. It's not clear if calling these again in `wifi_prov_mgr_start_provisioning()` is therefore necessary (apparently it is not), _nor is it clear if calling them again by re-including the removed calls would be problematic_.
     - Removed "Change Wi-Fi storage to RAM temporarily and erase any old credentials in RAM"
       - Removed calls: `esp_wifi_set_storage(WIFI_STORAGE_RAM); esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg_empty);`
-      - Based upon the comments, this appears to be a sort of back door means of preventing the application code from attempting to auto-reconnect when it receives `WIFI_EVENT_STA_DISCONNECTED` due to the call to `esp_wifi_disconnect()` discussed below. Presumably the auto-reconnect cannot occur or won't succeed due to there being no stored access point credentials.
+      - Based upon the comments, this appears to be a sort of back door means of preventing the **application code** from attempting to auto-reconnect when it receives `WIFI_EVENT_STA_DISCONNECTED` due to the call to `esp_wifi_disconnect()` discussed below. Presumably the auto-reconnect cannot occur or won't succeed due to there being no stored access point credentials.
       - Embedded Starter Kit wifi.c appears to manage not attempting to reconnect during provisioning. It controls when it calls `esp_wifi_connect()` when it receives `WIFI_EVENT_STA_DISCONNECTED`, only calling it if `_provisioning_in_progress` is false and WiFi is not actively being disconnected from.
     - Removed "Disconnect to make sure device doesn't remain connected to the AP whose credentials were present earlier"
       - Removed call: `esp_wifi_disconnect();`
