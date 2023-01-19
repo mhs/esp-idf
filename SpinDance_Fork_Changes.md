@@ -45,6 +45,14 @@ tools/idf_tools.py
 
 ## Features
 The following is a list of the SpinDance Embedded Starter Kit features that the changes in this fork support:
+- Network (NW) Metrics Reporting
+- Protocomm BLE Connectivity Reporting
+- Provisioning State in BLE Advertisement Data (AD)
+- JWT Authorization for Protocomm WiFi Provisioning
+- WPA2 Enterprise NW Support
+- WiFi Provisioning Sequence Changes
+
+The features, the associated changes to ESP IDF, and how the change is related to the Embedded Starter Ki are described in more detail below:
 - **Network (NW) Metrics Reporting**
   - Added support for simple bytes in/bytes out tracking and reporting in ESP's LWIP implementation
   - Embedded Starter Kit accesses these values via it's PAL and includes them in metrics reported to MQTT
