@@ -1483,7 +1483,7 @@ esp_err_t wifi_prov_mgr_start_provisioning(wifi_prov_security_t security, const 
             ESP_LOGE(TAG, "Failed to disconnect");
             goto err;
         }
-    #endif
+    #endif // INCLUDE_SPINDANCE_PROVISIONING_SETUP_CHANGES
 
     /* Initialize app data */
     if (security == WIFI_PROV_SECURITY_0) {
