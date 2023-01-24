@@ -57,7 +57,7 @@ The following is a list of the SpinDance Embedded Starter Kit features that the 
 The features, their associated changes to ESP IDF and how the change is related to the Embedded Starter Kit are described in more detail below:
 - **Network (NW) Metrics Reporting**
   - Added support for simple bytes in/bytes out tracking and reporting in ESP's LWIP implementation
-  - Embedded Starter Kit accesses these values via it's PAL and includes them in metrics reported to MQTT
+  - Embedded Starter Kit accesses these values via its PAL and includes them in metrics reported to MQTT
   - Impacted ESP IDF files:
     - wlanif.h
     - wlanif.h
@@ -88,7 +88,7 @@ The features, their associated changes to ESP IDF and how the change is related 
 - **JWT Authorization for Protocomm WiFi Provisioning**
   - Added an auth token property to the Protocomm protobuf messages, which is supplied to an also added optional authorization callback for validation prior to scanning for or configuring a WiFi access point.
   - Embedded Starter Kit registers an authorization handler that validates the token as a JWT. This feature is disabled in the WiFi configuration in `devkit`.
-  - Note: The was added for UV Angel to validate device claiming. Gentex Connected Smoke is also using a JWT during provisioning, but transfer of the JWT is done via a custom BLE Protocomm endpoint.
+  - Note: This was added for UV Angel to validate device claiming. Gentex Connected Smoke is also using a JWT during provisioning, but transfer of the JWT is done via a custom BLE Protocomm endpoint.
   - Impacted ESP IDF files:
     - Protobuf definition files:
       - wifi_config.proto
