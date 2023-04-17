@@ -103,7 +103,6 @@ static bool coex_queue_generic_deregister(coex_queue_item_t *queue)
 }
 #endif
 
-
 #ifdef CONFIG_PM_ENABLE
 extern void wifi_apb80m_request(void);
 extern void wifi_apb80m_release(void);
@@ -335,7 +334,6 @@ static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
 
     return NULL;
 #endif
-
 }
 
 static void coex_semphr_delete_wrapper(void *semphr)

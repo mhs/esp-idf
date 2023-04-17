@@ -365,7 +365,6 @@ static void coex_semphr_delete_wrapper(void *semphr)
 #endif
 }
 
-
 static void wifi_thread_semphr_free(void* data)
 {
     SemaphoreHandle_t *sem = (SemaphoreHandle_t*)(data);

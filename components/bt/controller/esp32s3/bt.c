@@ -773,7 +773,6 @@ static void queue_delete_wrapper(void *queue)
         free(item.buffer);
     }
 #endif
-
     return;
 }
 

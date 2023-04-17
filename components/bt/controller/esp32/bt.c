@@ -459,7 +459,6 @@ static DRAM_ATTR SemaphoreHandle_t btdm_queue_table_mux = NULL;
 // timestamp when PHY/RF was switched on
 static DRAM_ATTR int64_t s_time_phy_rf_just_enabled = 0;
 static DRAM_ATTR esp_bt_controller_status_t btdm_controller_status = ESP_BT_CONTROLLER_STATUS_IDLE;
-
 static DRAM_ATTR portMUX_TYPE global_int_mux = portMUX_INITIALIZER_UNLOCKED;
 
 // measured average low power clock period in micro seconds

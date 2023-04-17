@@ -95,7 +95,6 @@ static bool coex_queue_generic_deregister(coex_queue_item_t *queue)
 }
 #endif
 
-
 #ifdef CONFIG_PM_ENABLE
 extern void wifi_apb80m_request(void);
 extern void wifi_apb80m_release(void);
