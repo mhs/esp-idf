@@ -45,6 +45,58 @@
 
 #define TAG "esp_adapter"
 
+#if CONFIG_SPIRAM_USE_MALLOC
+/* SPIRAM Configuration */
+#define COEX_MAX_QUEUE_NUM       (2)
+
+
+/* PSRAM configuration */
+typedef struct {
+    QueueHandle_t handle;
+    void *storage;
+    void *buffer;
+} coex_queue_item_t;
+
+static DRAM_ATTR coex_queue_item_t coex_queue_table[COEX_MAX_QUEUE_NUM];
+
+static bool coex_queue_generic_register(const coex_queue_item_t *queue)
+{
+    // Coexist model will only create sempher twice in coex_pre_init when CPU start,
+    // And will never delete.
+    // So we do not need use mutex to protect it.
+
+    bool ret = false;
+    coex_queue_item_t *item;
+    for (int i = 0; i < COEX_MAX_QUEUE_NUM; ++i) {
+        item = &coex_queue_table[i];
+        if (item->handle == NULL) {
+            memcpy(item, queue, sizeof(coex_queue_item_t));
+            ret = true;
+            break;
+        }
+    }
+    assert(ret);
+    return ret;
+}
+
+static bool coex_queue_generic_deregister(coex_queue_item_t *queue)
+{
+    bool ret = false;
+    coex_queue_item_t *item;
+    for (int i = 0; i < COEX_MAX_QUEUE_NUM; ++i) {
+        item = &coex_queue_table[i];
+        if (item->handle == queue->handle) {
+            memcpy(queue, item, sizeof(coex_queue_item_t));
+            memset(item, 0, sizeof(coex_queue_item_t));
+            ret = true;
+            break;
+        }
+    }
+    return ret;
+}
+#endif
+
+
 #ifdef CONFIG_PM_ENABLE
 extern void wifi_apb80m_request(void);
 extern void wifi_apb80m_release(void);
@@ -234,6 +286,70 @@ static void * semphr_create_wrapper(uint32_t max, uint32_t init)
 static void semphr_delete_wrapper(void *semphr)
 {
     vSemaphoreDelete(semphr);
+}
+
+static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
+{
+    void *handle = NULL;
+
+#if !CONFIG_SPIRAM_USE_MALLOC
+    handle = (void *)xSemaphoreCreateCounting(max, init);
+#else
+    StaticQueue_t *queue_buffer = NULL;
+
+    queue_buffer = heap_caps_malloc(sizeof(StaticQueue_t), MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT);
+    if (!queue_buffer) {
+        goto error;
+    }
+
+    handle = (void *)xSemaphoreCreateCountingStatic(max, init, queue_buffer);
+    if (!handle) {
+        goto error;
+    }
+
+    coex_queue_item_t item = {
+        .handle = handle,
+        .storage = NULL,
+        .buffer = queue_buffer,
+    };
+
+    if (!coex_queue_generic_register(&item)) {
+        goto error;
+    }
+#endif
+
+    return handle;
+
+#if CONFIG_SPIRAM_USE_MALLOC
+ error:
+    if (handle) {
+        vSemaphoreDelete(handle);
+    }
+    if (queue_buffer) {
+        free(queue_buffer);
+    }
+
+    return NULL;
+#endif
+
+}
+
+static void coex_semphr_delete_wrapper(void *semphr)
+{
+#if !CONFIG_SPIRAM_USE_MALLOC
+    vSemaphoreDelete(semphr);
+#else
+    coex_queue_item_t item = {
+        .handle = semphr,
+        .storage = NULL,
+        .buffer = NULL,
+    };
+
+    if (coex_queue_generic_deregister(&item)) {
+        vSemaphoreDelete(item.handle);
+        free(item.buffer);
+    }
+#endif
 }
 
 static void wifi_thread_semphr_free(void* data)
@@ -778,8 +894,8 @@ wifi_osi_funcs_t g_wifi_osi_funcs = {
 coex_adapter_funcs_t g_coex_adapter_funcs = {
     ._version = COEX_ADAPTER_VERSION,
     ._task_yield_from_isr = task_yield_from_isr_wrapper,
-    ._semphr_create = semphr_create_wrapper,
-    ._semphr_delete = semphr_delete_wrapper,
+    ._semphr_create = coex_semphr_create_wrapper,
+    ._semphr_delete = coex_semphr_delete_wrapper,
     ._semphr_take_from_isr = semphr_take_from_isr_wrapper,
     ._semphr_give_from_isr = semphr_give_from_isr_wrapper,
     ._semphr_take = semphr_take_wrapper,

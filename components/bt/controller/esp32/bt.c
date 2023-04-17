@@ -509,9 +509,8 @@ static inline void btdm_check_and_init_bb(void)
 #if CONFIG_SPIRAM_USE_MALLOC
 static bool btdm_queue_generic_register(const btdm_queue_item_t *queue)
 {
-    if (!btdm_queue_table_mux || !queue) {
-        return NULL;
-    }
+    assert(btdm_queue_table_mux != NULL);
+    assert(queue != NULL);
 
     bool ret = false;
     btdm_queue_item_t *item;
@@ -525,14 +524,14 @@ static bool btdm_queue_generic_register(const btdm_queue_item_t *queue)
         }
     }
     xSemaphoreGive(btdm_queue_table_mux);
+    assert(ret);
     return ret;
 }
 
 static bool btdm_queue_generic_deregister(btdm_queue_item_t *queue)
 {
-    if (!btdm_queue_table_mux || !queue) {
-        return false;
-    }
+    assert(btdm_queue_table_mux != NULL);
+    assert(queue != NULL);
 
     bool ret = false;
     btdm_queue_item_t *item;
@@ -809,8 +808,8 @@ static void mutex_delete_wrapper(void *mutex)
         free(item.buffer);
     }
 
-    return;
 #endif
+    return;
 }
 
 static int32_t mutex_lock_wrapper(void *mutex)
@@ -890,9 +889,9 @@ static void queue_delete_wrapper(void *queue)
         free(item.storage);
         free(item.buffer);
     }
+#endif
 
     return;
-#endif
 }
 
 #if CONFIG_BTDM_CTRL_HLI
