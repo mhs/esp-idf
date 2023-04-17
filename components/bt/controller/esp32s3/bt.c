@@ -590,7 +590,6 @@ static void *semphr_create_wrapper(uint32_t max, uint32_t init)
 
     return NULL;
 #endif
-
 }
 
 static void semphr_delete_wrapper(void *semphr)

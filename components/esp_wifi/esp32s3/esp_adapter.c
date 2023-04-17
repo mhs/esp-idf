@@ -57,7 +57,6 @@
 /* SPIRAM Configuration */
 #define COEX_MAX_QUEUE_NUM       (2)
 
-
 /* PSRAM configuration */
 typedef struct {
     QueueHandle_t handle;
@@ -165,7 +164,6 @@ wifi_static_queue_t* wifi_create_queue( int queue_len, int item_size)
     }
 
 #if CONFIG_SPIRAM_USE_MALLOC
-
     queue->storage = heap_caps_calloc(1, sizeof(StaticQueue_t) + (queue_len*item_size), MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT);
     if (!queue->storage) {
         goto _error;
@@ -205,7 +203,6 @@ void wifi_delete_queue(wifi_static_queue_t *queue)
             free(queue->storage);
         }
 #endif
-
         free(queue);
     }
 }
@@ -325,7 +322,6 @@ static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
         goto error;
     }
 #endif
-
     return handle;
 
 #if CONFIG_SPIRAM_USE_MALLOC
@@ -359,7 +355,6 @@ static void coex_semphr_delete_wrapper(void *semphr)
     }
 #endif
 }
-
 
 static void wifi_thread_semphr_free(void* data)
 {

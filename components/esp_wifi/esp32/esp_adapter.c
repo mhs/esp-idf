@@ -57,7 +57,6 @@
 /* SPIRAM Configuration */
 #define COEX_MAX_QUEUE_NUM       (2)
 
-
 /* PSRAM configuration */
 typedef struct {
     QueueHandle_t handle;
@@ -69,7 +68,7 @@ static DRAM_ATTR coex_queue_item_t coex_queue_table[COEX_MAX_QUEUE_NUM];
 
 static bool coex_queue_generic_register(const coex_queue_item_t *queue)
 {
-    // Coexist model will only create sempher twice in coex_pre_init when CPU start,
+    // Coexist model will only create semaphore twice in coex_pre_init when CPU start,
     // And will never delete.
     // So we do not need use mutex to protect it.
 
@@ -214,7 +213,6 @@ void wifi_delete_queue(wifi_static_queue_t *queue)
             free(queue->storage);
         }
 #endif
-
         free(queue);
     }
 }
@@ -334,7 +332,6 @@ static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
         goto error;
     }
 #endif
-
     return handle;
 
 #if CONFIG_SPIRAM_USE_MALLOC
@@ -348,7 +345,6 @@ static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
 
     return NULL;
 #endif
-
 }
 
 static void coex_semphr_delete_wrapper(void *semphr)

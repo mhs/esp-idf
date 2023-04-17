@@ -49,7 +49,6 @@
 /* SPIRAM Configuration */
 #define COEX_MAX_QUEUE_NUM       (2)
 
-
 /* PSRAM configuration */
 typedef struct {
     QueueHandle_t handle;
@@ -317,7 +316,6 @@ static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
         goto error;
     }
 #endif
-
     return handle;
 
 #if CONFIG_SPIRAM_USE_MALLOC
@@ -331,7 +329,6 @@ static void *coex_semphr_create_wrapper(uint32_t max, uint32_t init)
 
     return NULL;
 #endif
-
 }
 
 static void coex_semphr_delete_wrapper(void *semphr)
