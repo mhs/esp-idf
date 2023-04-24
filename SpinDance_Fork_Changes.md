@@ -41,6 +41,11 @@ components/wifi_provisioning/src/wifi_config.c
 components/wifi_provisioning/src/wifi_provisioning_priv.h
 components/wifi_provisioning/src/wifi_scan.c
 tools/idf_tools.py
+components/bt/controller/esp32/bt.c
+components/bt/controller/esp32s3/bt.c
+components/esp_wifi/esp32/esp_adapter.c
+components/esp_wifi/esp32s2/esp_adapter.c
+components/esp_wifi/esp32s3/esp_adapter.c
 ```
 
 ## Feature List
@@ -173,3 +178,13 @@ The features, their associated changes to ESP IDF and how the change is related 
 |components/wifi_provisioning/src/wifi_provisioning_priv.h             | WPA2 Enterprise NW Support |
 |components/wifi_provisioning/src/wifi_scan.c                          | JWT Authorization for Protocomm WiFi Provisioning |
 |tools/idf_tools.py                                                    | Python Version Change |
+
+## Git Patch
+A git patch was applied that moves FREERTOS static data out of spiram. The patch prevents a cache memory panic
+during bluetooth interrupts and was applied to the following files:
+
+- components/bt/controller/esp32/bt.c
+- components/bt/controller/esp32s3/bt.c
+- components/esp_wifi/esp32/esp_adapter.c
+- components/esp_wifi/esp32s2/esp_adapter.c
+- components/esp_wifi/esp32s3/esp_adapter.c
