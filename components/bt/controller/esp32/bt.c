@@ -459,7 +459,6 @@ static DRAM_ATTR SemaphoreHandle_t btdm_queue_table_mux = NULL;
 // timestamp when PHY/RF was switched on
 static DRAM_ATTR int64_t s_time_phy_rf_just_enabled = 0;
 static DRAM_ATTR esp_bt_controller_status_t btdm_controller_status = ESP_BT_CONTROLLER_STATUS_IDLE;
-
 static DRAM_ATTR portMUX_TYPE global_int_mux = portMUX_INITIALIZER_UNLOCKED;
 
 // measured average low power clock period in micro seconds
@@ -509,9 +508,8 @@ static inline void btdm_check_and_init_bb(void)
 #if CONFIG_SPIRAM_USE_MALLOC
 static bool btdm_queue_generic_register(const btdm_queue_item_t *queue)
 {
-    if (!btdm_queue_table_mux || !queue) {
-        return NULL;
-    }
+    assert(btdm_queue_table_mux != NULL);
+    assert(queue != NULL);
 
     bool ret = false;
     btdm_queue_item_t *item;
@@ -525,14 +523,14 @@ static bool btdm_queue_generic_register(const btdm_queue_item_t *queue)
         }
     }
     xSemaphoreGive(btdm_queue_table_mux);
+    assert(ret);
     return ret;
 }
 
 static bool btdm_queue_generic_deregister(btdm_queue_item_t *queue)
 {
-    if (!btdm_queue_table_mux || !queue) {
-        return false;
-    }
+    assert(btdm_queue_table_mux != NULL);
+    assert(queue != NULL);
 
     bool ret = false;
     btdm_queue_item_t *item;
@@ -808,9 +806,8 @@ static void mutex_delete_wrapper(void *mutex)
         vSemaphoreDelete(item.handle);
         free(item.buffer);
     }
-
-    return;
 #endif
+    return;
 }
 
 static int32_t mutex_lock_wrapper(void *mutex)
@@ -890,9 +887,8 @@ static void queue_delete_wrapper(void *queue)
         free(item.storage);
         free(item.buffer);
     }
-
-    return;
 #endif
+    return;
 }
 
 #if CONFIG_BTDM_CTRL_HLI
