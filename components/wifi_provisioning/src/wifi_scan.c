@@ -63,8 +63,19 @@ static esp_err_t cmd_scan_start_handler(WiFiScanPayload *req,
         ESP_LOGE(TAG, "Error allocating memory");
         return ESP_ERR_NO_MEM;
     }
-
     resp_scan_start__init(resp_payload);
+
+    /* Check authorization if callback is set */
+    if (h->scan_auth) {
+        esp_err_t auth_ret = h->scan_auth((const char*)req->auth_token.data, req->auth_token.len);
+        if (auth_ret != ESP_OK) {
+            ESP_LOGW(TAG, "Authorization failed for scan command");
+            resp->status = STATUS__InvalidArgument;
+            resp->payload_case = WI_FI_SCAN_PAYLOAD__PAYLOAD_RESP_SCAN_START;
+            resp->resp_scan_start = resp_payload;
+            return ESP_OK; // Don't close connection, just return auth failure
+        }
+    }
     resp->status = (h->scan_start(req->cmd_scan_start->blocking,
                                   req->cmd_scan_start->passive,
                                   req->cmd_scan_start->group_channels,
