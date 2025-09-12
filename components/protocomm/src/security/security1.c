@@ -192,7 +192,7 @@ static esp_err_t handle_session_command1(session_t *cur_session,
         ESP_LOGE(TAG, "Failed to post secure session setup success event");
     }
 
-    ESP_LOGD(TAG, "Secure session established successfully");
+    ESP_LOGI(TAG, "Secure session established successfully");
     return ESP_OK;
 }
 

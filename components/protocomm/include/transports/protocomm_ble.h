@@ -41,6 +41,18 @@ typedef enum {
  * (29 - (BLE device name length) - 2). */
 #define MAX_BLE_MANUFACTURER_DATA_LEN 29
 
+typedef enum {
+    // Peer is connected without any security (i.e., no PoP has been entered)
+    PROTOCOMM_BLE_PEER_CONNECTED,
+    // Peer disconnected
+    PROTOCOMM_BLE_PEER_DISCONNECTED,
+    // Peer is connected securely with a valid PoP
+    PROTOCOMM_BLE_PEER_CONNECTED_SECURE,
+} ble_event;
+
+/// type of function called when a peer device connects or disconnects
+typedef void (*protocomm_ble_event_fn)(ble_event event);
+
 #define BLE_ADDR_LEN 6
 /**
  * @brief   This structure maps handler required by protocomm layer to

@@ -609,6 +609,9 @@ static void transport_simple_ble_disconnect(struct ble_gap_event *event, void *a
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "error closing the session after disconnect");
         } else {
+            if (NULL != _ble_event_fn) {
+                _ble_event_fn(PROTOCOMM_BLE_PEER_DISCONNECTED);
+            }
             protocomm_ble_event_t ble_event = {};
             /* Assign the event type */
             ble_event.evt_type = PROTOCOMM_TRANSPORT_BLE_DISCONNECTED;
@@ -641,17 +644,22 @@ static void transport_simple_ble_connect(struct ble_gap_event *event, void *arg)
             protoble_internal->pc_ble->sec->new_transport_session(protoble_internal->pc_ble->sec_inst, event->connect.conn_handle);
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "error creating the session");
-        } else {
-            protocomm_ble_event_t ble_event = {};
-            /* Assign the event type */
-            ble_event.evt_type = PROTOCOMM_TRANSPORT_BLE_CONNECTED;
-            /* Set the Connection handle */
-            ble_event.conn_handle = event->connect.conn_handle;
-            ble_event.conn_status = event->connect.status;
+            return;
+        }
 
-            if (esp_event_post(PROTOCOMM_TRANSPORT_BLE_EVENT, PROTOCOMM_TRANSPORT_BLE_CONNECTED, &ble_event, sizeof(protocomm_ble_event_t), portMAX_DELAY) != ESP_OK) {
-                ESP_LOGE(TAG, "Failed to post transport pairing event");
-            }
+        if (NULL != _ble_event_fn) {
+            _ble_event_fn(PROTOCOMM_BLE_PEER_CONNECTED);
+        }
+        
+        protocomm_ble_event_t ble_event = {};
+        /* Assign the event type */
+        ble_event.evt_type = PROTOCOMM_TRANSPORT_BLE_CONNECTED;
+        /* Set the Connection handle */
+        ble_event.conn_handle = event->connect.conn_handle;
+        ble_event.conn_status = event->connect.status;
+
+        if (esp_event_post(PROTOCOMM_TRANSPORT_BLE_EVENT, PROTOCOMM_TRANSPORT_BLE_CONNECTED, &ble_event, sizeof(protocomm_ble_event_t), portMAX_DELAY) != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to post transport pairing event");
         }
     }
 }

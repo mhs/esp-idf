@@ -7,6 +7,7 @@
 #pragma once
 
 #include <esp_err.h>
+#include <stdbool.h>
 #include "esp_event.h"
 
 #ifdef __cplusplus
