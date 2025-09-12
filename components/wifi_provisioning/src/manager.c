@@ -154,6 +154,7 @@ struct wifi_prov_mgr_ctx {
     wifi_ap_record_t *ap_list[14];
     wifi_ap_record_t *ap_list_sorted[MAX_SCAN_RESULTS];
     wifi_scan_config_t scan_cfg;
+    wifi_prov_cb_auth_t auth_cb;
 
     /* Total number of attempts done for connecting to Wi-Fi */
     uint32_t connection_attempts_completed;
@@ -580,6 +581,7 @@ static void prov_stop_and_notify(bool is_async)
     if (!is_async)
     {
         uint32_t cleanup_delay = prov_ctx->cleanup_delay > 100 ? prov_ctx->cleanup_delay : 100;
+        ESP_LOGI(TAG, "Delaying %lu ms", cleanup_delay);
         vTaskDelay(cleanup_delay / portTICK_PERIOD_MS);
     }
 
@@ -1870,4 +1872,12 @@ exit:
     }
     RELEASE_LOCK(prov_ctx_lock);
     return ret;
+}
+
+esp_err_t wifi_prov_mgr_set_authorization_cb(wifi_prov_cb_auth_t auth_cb) {
+    if (!prov_ctx) {
+        return ESP_FAIL;
+    }
+    prov_ctx->auth_cb = auth_cb;
+    return ESP_OK;
 }
