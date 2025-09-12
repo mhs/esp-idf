@@ -77,6 +77,12 @@ typedef enum {
 
 typedef void (*wifi_prov_cb_func_t)(void *user_data, wifi_prov_cb_event_t event, void *event_data);
 
+/** Returns ESP_OK if operation is authorized, ESP_ERR_FAIL otherwise
+ *
+ *  @note: auth is not NULL terminated. Callbacks must only check up to auth_len characters.
+ */
+typedef esp_err_t (*wifi_prov_cb_auth_t)(const char* auth, size_t auth_len);
+
 /**
  * @brief   Event handler that is used by the manager while
  *          provisioning service is active

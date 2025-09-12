@@ -172,6 +172,16 @@ typedef struct protocomm_ble_config {
  */
 esp_err_t protocomm_ble_start(protocomm_t *pc, const protocomm_ble_config_t *config);
 
+esp_err_t protocomm_ble_set_manufacturer_data(uint8_t *data, uint8_t length);
+
+/// Register a callback that is called when a BLE event occurs (peer connects or disconnects)
+void protocomm_ble_register_ble_event_fn(protocomm_ble_event_fn fn);
+
+/// Get the registered BLE event callback
+///
+/// @return protocomm_ble_event_fn callback, or NULL if no callback is registered.
+protocomm_ble_event_fn protocomm_ble_get_ble_event_fn(void);
+
 /**
  * @brief   Stop Bluetooth Low Energy based transport layer for provisioning
  *
