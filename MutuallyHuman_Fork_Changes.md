@@ -24,7 +24,7 @@ git checkout mhs_changes_v5.5.1
 
 ```(text)
 .github/workflows/docker.yml            // DELETED
-SpinDance_Fork_Changes.md
+MutuallyHuman_Fork_Changes.md           // Renamed from SpinDance_Fork_Changes.md
 components/esp_netif/include/lwip/esp_netif_net_stack.h  (was components/lwip/port/esp32/include/netif/wlanif.h before v5.0)
 components/esp_netif/lwip/netif/wlanif.c
 components/freertos/CMakeLists.txt
@@ -192,8 +192,8 @@ The features, their associated changes to ESP IDF and how the change is related 
 # Comparison of the v5.0 and v5.5.1 fork changes
 
 After generating the new branch `mhs_changes_v5.5.1`, we did a comparison of the diffs
-1. `mhs_changes_v5.5.1` branch  vs `v5.5.1 ` tag
-1. `spindance_changes_v5.0` branch vs `v5.0` tag
+1. Diff `mhs_changes_v5.5.1` branch  vs `v5.5.1 ` tag
+1. Diff `spindance_changes_v5.0` branch vs `v5.0` tag
 to ensure the update was complete.
 
 ## Summary
@@ -206,7 +206,7 @@ Here are the files that show non-trivial differences between the two diffs along
 
 | File                                                                 | Notes |
 |:-------------------------------------------------------------------- | -------------- |
-| protocomm_nimble.c |  The changes to report PROTOCOMM_BLE_PEER_DISCONNECTED and PROTOCOMM_BLE_PEER_CONNECTED events applied exactly. <br>Note that v5.0 added `protocomm_transport_ble_event_t` type that had two out of the 3 events that we added in our fork change to add `ble_event`. But since they did NOT include the secure connection event, we continue to use our fork changes. As a result, you'll see a little duplication of events in this file between our `ble_event` and their `protocomm_transport_ble_event_t`. <br>We should keep an eye on the evolution of `protocomm_transport_ble_event_t` and see if Espressif ever adds the secure connection, at which point we would be able to undo our fork changes and be closer to the unmodified esp-idf. |
+| protocomm_nimble.c |  The changes to report PROTOCOMM_BLE_PEER_DISCONNECTED and PROTOCOMM_BLE_PEER_CONNECTED events applied exactly. </br>Note that v5.0 added `protocomm_transport_ble_event_t` type that had two out of the 3 events that we added in our fork change to add `ble_event`. But since they did NOT include the secure connection event, we continue to use our fork changes. As a result, you'll see a little duplication of events in this file between our `ble_event` and their `protocomm_transport_ble_event_t`. </br>We should keep an eye on the evolution of `protocomm_transport_ble_event_t` and see if Espressif ever adds the secure connection, at which point we would be able to undo our fork changes and be closer to the unmodified esp-idf. |
 | wifi_constants_pb2.py | Mostly changes applied exactly, including the "WifiConnectedState = _reflection.GeneratedProtocolMessageType" paragraph. But the v5.5.1 port added a "WifiAttemptFailed = _reflection.GeneratedProtocolMessageType  paragraph as needed in the v5.5.1 code. |
 |  manager.c | The code structure around our line `ESP_LOGI(TAG, "Delaying %lu ms", cleanup_delay);` changed but the logging was added into the new structure successfully. Otherwise, all changes applied exactly. |
 |  wifi_config.c | Our v5.0 fork added to the `wifi_prov_config_data_handler` function the code paragraph "Authorize before dispatching command". And that was applied exactly in the new branch. But in creating our v5.5.1 fork, claude code added to the `cmd_set_config_handler` function the code paragraph "Check authorization if callback is set" |
