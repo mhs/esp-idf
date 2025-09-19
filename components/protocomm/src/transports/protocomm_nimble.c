@@ -650,7 +650,7 @@ static void transport_simple_ble_connect(struct ble_gap_event *event, void *arg)
         if (NULL != _ble_event_fn) {
             _ble_event_fn(PROTOCOMM_BLE_PEER_CONNECTED);
         }
-        
+
         protocomm_ble_event_t ble_event = {};
         /* Assign the event type */
         ble_event.evt_type = PROTOCOMM_TRANSPORT_BLE_CONNECTED;

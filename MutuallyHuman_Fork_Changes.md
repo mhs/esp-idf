@@ -76,7 +76,7 @@ The features, their associated changes to ESP IDF and how the change is related 
     - [lwip/port/esp32: add metrics for wlan bytes in/out](https://github.com/mhs/esp-idf/commit/ef9b870d0dad29b4993815c323c57202f5c1700b)
 - **Protocomm BLE Connectivity Reporting**
   - Added reporting of BLE peer connectivity state (connected, connected securely, not connected)
-  - Embedded Starter Kit reports these states to analagous pubsub topic IDs in the pubsub namespace `WIFI_TOPIC_NS`
+  - Embedded Starter Kit reports these states to analogous pubsub topic IDs in the pubsub namespace `WIFI_TOPIC_NS`
   - Note: We'd likely want to implement this for `Security2` if/when we migrate to ESP IDF v5. Used to display LEDs of different colors depending upon the state.
   - Note 2:  The esp-idf v5.0 added a new `protocomm_transport_ble_event_t` type that had two out of the 3 events that we added in our fork change to add `ble_event`. Since they did NOT include the secure connection event, we continue to use our fork changes. As a result, you'll see a little duplication of events, e.g. in `protocomm_nimble.c`, between our ble_event and their protocomm_transport_ble_event_t. We should keep an eye on the evolution of protocomm_transport_ble_event_t and see if they ever add the secure connection, at which point we would be able to undo our fork changes and be closer to the unmodified esp-idf.
   - Impacted ESP IDF files:
