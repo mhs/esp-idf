@@ -1,16 +1,8 @@
-// Copyright 2019 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2019-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #ifndef _PROV_WIFI_SCAN_H_
 #define _PROV_WIFI_SCAN_H_
@@ -89,7 +81,7 @@ typedef struct wifi_prov_scan_handlers {
      * mode is SoftAP, where scanning all channels in one go may not
      * give the Wi-Fi driver enough time to send out beacons, and
      * hence may cause disconnection with any connected stations.
-     * When scanning in groups, the manager will wait for atleast
+     * When scanning in groups, the manager will wait for at least
      * 120ms after completing scan on a group of channels, and thus
      * allow the driver to send out the beacons. For example, given
      * that the total number of Wi-Fi channels is 14, then setting
@@ -143,6 +135,17 @@ typedef struct wifi_prov_scan_handlers {
     esp_err_t (*scan_result)(uint16_t result_index,
                              wifi_prov_scan_result_t *result,
                              wifi_prov_scan_ctx_t **ctx);
+
+    /**
+     * Handler function called to authorize scan_* commands.
+     * Can be NULL if no authorization required.
+     * If set, will be called before handling scan commands.
+     *
+     * Returns:
+     *  ESP_OK: Command is authorized
+     *  ESP_FAIL: Command is not authorized
+     */
+    esp_err_t (*scan_auth)(const char* auth, size_t auth_len);
 
     /**
      * Context pointer to be passed to above handler functions upon invocation

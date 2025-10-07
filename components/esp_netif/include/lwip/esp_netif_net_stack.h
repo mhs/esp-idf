@@ -89,6 +89,10 @@ err_t wlanif_init_nan(struct netif *netif);
  */
 esp_netif_recv_ret_t wlanif_input(void *h, void *buffer, size_t len, void* l2_buff);
 
+// Statistics
+int wlanif_bytes_in(void);
+int wlanif_bytes_out(void);
+
 #ifdef __cplusplus
 }
 #endif

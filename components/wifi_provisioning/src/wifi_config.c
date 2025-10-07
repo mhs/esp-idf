@@ -155,6 +155,18 @@ static esp_err_t cmd_set_config_handler(WiFiConfigPayload *req,
     }
     resp_set_config__init(resp_payload);
 
+    /* Check authorization if callback is set */
+    if (h->config_auth) {
+        esp_err_t auth_ret = h->config_auth((const char*)req->auth_token.data, req->auth_token.len);
+        if (auth_ret != ESP_OK) {
+            ESP_LOGW(TAG, "Authorization failed for config command");
+            resp_payload->status = STATUS__InvalidArgument;
+            resp->payload_case = WI_FI_CONFIG_PAYLOAD__PAYLOAD_RESP_SET_CONFIG;
+            resp->resp_set_config = resp_payload;
+            return ESP_OK; // Don't close connection, just return auth failure
+        }
+    }
+
     wifi_prov_config_set_data_t req_data;
     memset(&req_data, 0, sizeof(req_data));
 
@@ -317,6 +329,19 @@ esp_err_t wifi_prov_config_data_handler(uint32_t session_id, const uint8_t *inbu
     if (!req) {
         ESP_LOGE(TAG, "Unable to unpack config data");
         return ESP_ERR_INVALID_ARG;
+    }
+
+    /* Authorize before dispatching command */
+    const wifi_prov_config_handlers_t *h = (const wifi_prov_config_handlers_t *)priv_data;
+    esp_err_t auth_status = ESP_OK;
+    if (h->config_auth) {
+        auth_status = h->config_auth(
+                (const char*)req->auth_token.data,
+                req->auth_token.len);
+    }
+    if (ESP_OK != auth_status) {
+        ESP_LOGE(TAG, "Proto command dispatch not authorized");
+        return ESP_FAIL;
     }
 
     wi_fi_config_payload__init(&resp);

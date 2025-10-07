@@ -519,7 +519,6 @@ components/tcp_transport/include/esp_transport_ws.h
 components/vfs/include/esp_vfs_common.h
 components/wifi_provisioning/include/wifi_provisioning/scheme_console.h
 components/wifi_provisioning/include/wifi_provisioning/scheme_softap.h
-components/wifi_provisioning/include/wifi_provisioning/wifi_scan.h
 components/wifi_provisioning/proto-c/wifi_config.pb-c.c
 components/wifi_provisioning/proto-c/wifi_config.pb-c.h
 components/wifi_provisioning/proto-c/wifi_constants.pb-c.c
@@ -530,7 +529,6 @@ components/wifi_provisioning/python/wifi_config_pb2.py
 components/wifi_provisioning/python/wifi_constants_pb2.py
 components/wifi_provisioning/python/wifi_scan_pb2.py
 components/wifi_provisioning/src/scheme_console.c
-components/wifi_provisioning/src/wifi_scan.c
 components/wpa_supplicant/esp_supplicant/src/esp_wpa_err.h
 components/wpa_supplicant/include/utils/wpa_debug.h
 components/wpa_supplicant/include/utils/wpabuf.h

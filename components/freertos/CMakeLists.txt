@@ -121,7 +121,8 @@ list(APPEND include_dirs
 
 # Add FreeRTOS Kernel public include directories
 list(APPEND include_dirs
-    "${kernel_impl}/include")       # FreeRTOS headers via `#include "freertos/xxx.h"`
+    "${kernel_impl}/include"        # FreeRTOS headers via `#include "freertos/xxx.h"`
+    "${kernel_impl}/include/freertos") # For WICED build system compatibility
 
 # Add port public include directories
 list(APPEND include_dirs
